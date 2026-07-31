@@ -11,7 +11,7 @@
       Example:
       const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxxxxxx/exec";
    ============================================================ */
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpMk3xGOHc8q54KIaIPrvRY2BqaC88IQmEl-s4po83bvogvcZ2pyM8VpdygeINRE3P8Q/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxOfA1d4DQxDLihwGBGxzel-hmche94BZLdZp2cxtTfhVRhtjGVsgld1SI4VYC1JlzFKA/exec";
 
 /* Optional: your store's WhatsApp number (country code, no +
    or spaces, e.g. "923001234567") to auto-open a WhatsApp tab
