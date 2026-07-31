@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Admin - Dark Theme</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkblue: {
+                            900: '#0B132B',
+                            800: '#1C2541',
+                            700: '#3A506B',
+                            600: '#475569',
+                        },
+                        accent: {
+                            green: '#22C55E',
+                            yellow: '#EAB308'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-darkblue-900 text-white font-sans antialiased">
+
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-darkblue-800 border-r border-darkblue-700 flex flex-col hidden md:flex">
+            <div class="h-16 flex items-center px-6 border-b border-darkblue-700">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-accent-green text-darkblue-900 rounded-lg flex items-center justify-center font-bold">
+                        S
+                    </div>
+                    <span class="font-semibold text-lg tracking-tight text-white">My Store</span>
+                </div>
+            </div>
+
+            <!-- Nav Links -->
+            <nav class="flex-1 px-4 py-6 space-y-1">
+                <button onclick="switchTab('home')" id="nav-home" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg bg-darkblue-700 text-white font-medium transition-colors">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span>Home</span>
+                </button>
+                <button onclick="switchTab('orders')" id="nav-orders" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-darkblue-700 hover:text-white transition-colors">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    <span>Orders</span>
+                </button>
+                <button onclick="switchTab('products')" id="nav-products" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-darkblue-700 hover:text-white transition-colors">
+                    <i data-lucide="tag" class="w-5 h-5"></i>
+                    <span>Products</span>
+                </button>
+                <button onclick="switchTab('customers')" id="nav-customers" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-darkblue-700 hover:text-white transition-colors">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                    <span>Customers</span>
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-darkblue-700">
+                <button onclick="switchTab('settings')" id="nav-settings" class="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-300 hover:bg-darkblue-700 hover:text-white transition-colors">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                    <span>Settings</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="flex-1 flex flex-col overflow-hidden bg-darkblue-900">
+            
+            <!-- Top Header -->
+            <header class="h-16 bg-darkblue-800 border-b border-darkblue-700 flex items-center justify-between px-6 z-10">
+                <div class="flex items-center space-x-4">
+                    <h1 id="page-title" class="text-xl font-bold tracking-tight text-white">Home</h1>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-3 border-l border-darkblue-700 pl-4">
+                        <div class="w-9 h-9 bg-darkblue-700 text-accent-green font-bold rounded-full flex items-center justify-center">
+                            JD
+                        </div>
+                        <div class="hidden sm:block text-left">
+                            <p class="text-sm font-medium leading-none text-white">John Doe</p>
+                            <p class="text-xs text-gray-400 mt-1">Store Admin</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic Views Container -->
+            <main class="flex-1 overflow-y-auto p-6 space-y-6">
+
+                <!-- 1. HOME VIEW -->
+                <div id="view-home" class="space-y-6 tab-content">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-darkblue-800 p-6 rounded-xl border border-darkblue-700 shadow-sm">
+                            <p class="text-sm font-medium text-gray-400">Total Earning</p>
+                            <h3 id="dashboard-earnings" class="text-2xl font-bold mt-2 text-white">$0.00</h3>
+                        </div>
+                        <div class="bg-darkblue-800 p-6 rounded-xl border border-darkblue-700 shadow-sm">
+                            <p class="text-sm font-medium text-gray-400">Total Orders</p>
+                            <h3 id="dashboard-orders" class="text-2xl font-bold mt-2 text-white">0</h3>
+                        </div>
+                        <div class="bg-darkblue-800 p-6 rounded-xl border border-darkblue-700 shadow-sm">
+                            <p class="text-sm font-medium text-gray-400">Total Products Quantity</p>
+                            <h3 id="dashboard-product-qty" class="text-2xl font-bold mt-2 text-white">0</h3>
+                        </div>
+                    </div>
+
+                    <!-- Comparison Graphs Section -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Graph 1: Product Inventory Chart (Green) -->
+                        <div class="bg-darkblue-800 p-6 rounded-xl border border-darkblue-700 shadow-sm">
+                            <h3 class="font-bold text-base mb-4 text-white">Product Quantity Comparison</h3>
+                            <div class="relative h-64">
+                                <canvas id="productComparisonChart"></canvas>
+                            </div>
+                        </div>
+                        <!-- Graph 2: Store Earnings Chart (Yellow) -->
+                        <div class="bg-darkblue-800 p-6 rounded-xl border border-darkblue-700 shadow-sm">
+                            <h3 class="font-bold text-base mb-4 text-white">Weekly Earnings Overview</h3>
+                            <div class="relative h-64">
+                                <canvas id="earningsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. ORDERS VIEW -->
+                <div id="view-orders" class="space-y-6 tab-content hidden">
+                    <div class="bg-darkblue-800 rounded-xl border border-darkblue-700 shadow-sm p-12 text-center">
+                        <div class="w-12 h-12 bg-darkblue-700 text-gray-300 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                        </div>
+                        <h2 class="font-bold text-lg mb-1 text-white">No orders yet</h2>
+                        <p class="text-gray-400 text-sm max-w-sm mx-auto">When visitors buy things from your online store, their orders will show up here.</p>
+                    </div>
+                </div>
+
+                <!-- 3. PRODUCTS VIEW -->
+                <div id="view-products" class="space-y-6 tab-content hidden">
+                    <div class="bg-darkblue-800 p-6 rounded-xl border border-darkblue-700 shadow-sm flex justify-between items-center">
+                        <div>
+                            <h2 class="font-bold text-lg text-white">Products Management</h2>
+                            <p class="text-sm text-gray-400">Manage your physical items, pricing, media, and inventory stock quantity.</p>
+                        </div>
+                        <button onclick="toggleModal(true)" class="bg-accent-green hover:bg-emerald-600 text-darkblue-900 font-semibold px-4 py-2 rounded-lg text-sm transition-colors shadow-sm">
+                            Add Product
+                        </button>
+                    </div>
+
+                    <!-- Dynamic Products Display Table -->
+                    <div class="bg-darkblue-800 rounded-xl border border-darkblue-700 shadow-sm overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-darkblue-700 text-gray-300 text-xs uppercase border-b border-darkblue-700">
+                                    <th class="px-6 py-3 font-medium">Product</th>
+                                    <th class="px-6 py-3 font-medium">Status</th>
+                                    <th class="px-6 py-3 font-medium">Inventory Stock Qty</th>
+                                    <th class="px-6 py-3 font-medium">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody id="product-table-body" class="divide-y divide-darkblue-700 text-sm">
+                                <tr id="no-products-row">
+                                    <td colspan="4" class="px-6 py-12 text-center text-gray-400">
+                                        No products added yet. Click "Add Product" to begin.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 4. CUSTOMERS VIEW -->
+                <div id="view-customers" class="space-y-6 tab-content hidden">
+                    <div class="bg-darkblue-800 rounded-xl border border-darkblue-700 shadow-sm p-12 text-center">
+                        <div class="w-12 h-12 bg-darkblue-700 text-gray-300 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="users" class="w-6 h-6"></i>
+                        </div>
+                        <h2 class="font-bold text-lg mb-1 text-white">No customers yet</h2>
+                        <p class="text-gray-400 text-sm max-w-sm mx-auto">Customer profiles will appear here after they complete a checkout or create an account.</p>
+                    </div>
+                </div>
+
+                <!-- 5. SETTINGS VIEW -->
+                <div id="view-settings" class="space-y-6 tab-content hidden">
+                    <div class="bg-darkblue-800 p-6 rounded-xl border border-darkblue-700 shadow-sm">
+                        <h2 class="font-bold text-lg mb-4 text-white">General Settings</h2>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Store Name</label>
+                        <input type="text" value="My Store" class="bg-darkblue-900 border border-darkblue-700 rounded-lg px-3 py-2 w-full max-w-md mb-4 text-sm text-white focus:outline-accent-green">
+                        <br>
+                        <button class="bg-accent-green hover:bg-emerald-600 text-darkblue-900 font-semibold px-4 py-2 rounded-lg text-sm">Save Changes</button>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ADD PRODUCT POPUP MODAL -->
+    <div id="product-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-darkblue-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-darkblue-700 m-4">
+            <div class="px-6 py-4 border-b border-darkblue-700 flex items-center justify-between sticky top-0 bg-darkblue-800 z-10">
+                <h2 class="font-bold text-lg text-white">Add Product</h2>
+                <button onclick="toggleModal(false)" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Form Content -->
+            <form id="add-product-form" onsubmit="handleProductSubmit(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Product Title</label>
+                    <input type="text" id="prod-title" required placeholder="e.g. Cotton Summer T-Shirt" class="w-full bg-darkblue-900 border border-darkblue-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-accent-green">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Description</label>
+                    <textarea id="prod-desc" rows="3" placeholder="Provide details about your product..." class="w-full bg-darkblue-900 border border-darkblue-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-accent-green"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Price (Rs.)</label>
+                        <input type="number" step="0.01" id="prod-price" required placeholder="0.00" class="w-full bg-darkblue-900 border border-darkblue-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-accent-green">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Inventory Stock Quantity</label>
+                        <input type="number" id="prod-stock" required placeholder="0" class="w-full bg-darkblue-900 border border-darkblue-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-accent-green">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Category</label>
+                        <select id="prod-category" required class="w-full bg-darkblue-900 border border-darkblue-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-accent-green">
+                            <option value="rings">Rings</option>
+                            <option value="necklaces">Necklaces</option>
+                            <option value="earrings">Earrings</option>
+                            <option value="bracelets">Bracelets</option>
+                            <option value="watches-men">Watches — Men</option>
+                            <option value="watches-women">Watches — Women</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Tag (optional)</label>
+                        <select id="prod-tag" class="w-full bg-darkblue-900 border border-darkblue-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-accent-green">
+                            <option value="">None</option>
+                            <option value="Bestseller">Bestseller</option>
+                            <option value="New">New</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Multiple Image URLs</label>
+                    <input type="text" id="prod-images" placeholder="Paste image links separated by commas" class="w-full bg-darkblue-900 border border-darkblue-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-accent-green">
+                    <p class="text-xs text-gray-500 mt-1">Example: https://img1.jpg, https://img2.jpg</p>
+                </div>
+
+                <div class="pt-4 border-t border-darkblue-700 flex justify-end space-x-3">
+                    <button type="button" onclick="toggleModal(false)" class="px-4 py-2 border border-darkblue-700 rounded-lg text-sm font-medium text-gray-300 hover:bg-darkblue-700">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-accent-green text-darkblue-900 font-semibold rounded-lg text-sm hover:bg-emerald-600">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripting & Chart.js Implementation -->
+    <script>
+        lucide.createIcons();
+
+        /* ============================================================
+           PASTE THE SAME GOOGLE APPS SCRIPT WEB APP URL YOU USED IN
+           script.js HERE. It must end in /exec.
+           ============================================================ */
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpMk3xGOHc8q54KIaIPrvRY2BqaC88IQmEl-s4po83bvogvcZ2pyM8VpdygeINRE3P8Q/exec";
+
+        function apiConfigured(){
+            return GOOGLE_SCRIPT_URL && !GOOGLE_SCRIPT_URL.includes("PASTE_YOUR");
+        }
+
+        async function apiGet(action){
+            if(!apiConfigured()) return [];
+            try{
+                const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=${action}`);
+                const data = await res.json();
+                return Array.isArray(data) ? data : [];
+            }catch(err){
+                console.warn("Could not reach Google Sheet:", err);
+                return [];
+            }
+        }
+
+        // Fire-and-forget POST (Apps Script web apps don't send CORS
+        // headers back, so we can't read the response — but the data
+        // still lands in the sheet).
+        function apiPost(payload){
+            if(!apiConfigured()) return Promise.resolve();
+            return fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            });
+        }
+
+        function slugify(str){
+            return str.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+        }
+
+        // Data Store State
+        let products = [];
+        let orders = [];
+        let totalEarnings = 0.00;
+
+        let productChart, earningsChart;
+
+        function initCharts() {
+            // Product Quantity Chart (Green theme)
+            const ctxProduct = document.getElementById('productComparisonChart').getContext('2d');
+            productChart = new Chart(ctxProduct, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Stock Quantity',
+                        data: [],
+                        backgroundColor: '#22C55E',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: '#1C2541' },
+                            ticks: { color: '#9CA3AF' }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { color: '#9CA3AF' }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#FFFFFF' } }
+                    }
+                }
+            });
+
+            // Weekly Earnings Chart (Yellow theme)
+            const ctxEarnings = document.getElementById('earningsChart').getContext('2d');
+            earningsChart = new Chart(ctxEarnings, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Earnings ($)',
+                        data: [0, 0, 0, 0, 0, 0, 0],
+                        borderColor: '#EAB308',
+                        backgroundColor: 'rgba(234, 179, 8, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: '#1C2541' },
+                            ticks: { color: '#9CA3AF' }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { color: '#9CA3AF' }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#FFFFFF' } }
+                    }
+                }
+            });
+        }
+
+        window.onload = async () => {
+            initCharts();
+            await loadDashboardData();
+        };
+
+        async function loadDashboardData(){
+            [products, orders] = await Promise.all([
+                apiGet("getProducts"),
+                apiGet("getOrders")
+            ]);
+            renderProductsTable();
+            renderOrdersTable();
+            updateDashboardMetrics();
+        }
+
+        function updateDashboardMetrics(){
+            const totalQty = products.reduce((a,p)=> a + (Number(p.stock)||0), 0);
+            totalEarnings = orders.reduce((a,o)=> a + (Number(o.price)||0) * (Number(o.quantity)||0), 0);
+
+            document.getElementById('dashboard-earnings').innerText = 'Rs. ' + totalEarnings.toLocaleString();
+            document.getElementById('dashboard-orders').innerText = orders.length;
+            document.getElementById('dashboard-product-qty').innerText = totalQty;
+
+            productChart.data.labels = products.map(p => p.name);
+            productChart.data.datasets[0].data = products.map(p => Number(p.stock) || 0);
+            productChart.update();
+
+            earningsChart.data.datasets[0].data = [
+                Math.round(totalEarnings * 0.1),
+                Math.round(totalEarnings * 0.2),
+                Math.round(totalEarnings * 0.15),
+                Math.round(totalEarnings * 0.3),
+                Math.round(totalEarnings * 0.25),
+                Math.round(totalEarnings * 0.4),
+                Math.round(totalEarnings)
+            ];
+            earningsChart.update();
+        }
+
+        function renderProductsTable(){
+            const tableBody = document.getElementById('product-table-body');
+            if(!products.length){
+                tableBody.innerHTML = `
+                    <tr id="no-products-row">
+                        <td colspan="4" class="px-6 py-12 text-center text-gray-400">
+                            No products added yet. Click "Add Product" to begin.
+                        </td>
+                    </tr>`;
+                return;
+            }
+            tableBody.innerHTML = products.map(p => `
+                <tr>
+                    <td class="px-6 py-4 flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-darkblue-700 text-accent-green rounded-lg flex items-center justify-center font-bold overflow-hidden">
+                            ${p.img ? `<img src="${p.img}" class="w-full h-full object-cover" alt="">` : (p.name || "?").charAt(0).toUpperCase()}
+                        </div>
+                        <span class="font-medium text-white">${p.name}</span>
+                    </td>
+                    <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs font-semibold bg-emerald-950 text-accent-green rounded-full">Active</span></td>
+                    <td class="px-6 py-4 text-gray-300">${p.stock} in stock</td>
+                    <td class="px-6 py-4 font-medium text-white">Rs. ${Number(p.price).toLocaleString()}</td>
+                </tr>
+            `).join("");
+        }
+
+        function renderOrdersTable(){
+            const view = document.getElementById('view-orders');
+            if(!orders.length){
+                view.innerHTML = `
+                    <div class="bg-darkblue-800 rounded-xl border border-darkblue-700 shadow-sm p-12 text-center">
+                        <div class="w-12 h-12 bg-darkblue-700 text-gray-300 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                        </div>
+                        <h2 class="font-bold text-lg mb-1 text-white">No orders yet</h2>
+                        <p class="text-gray-400 text-sm max-w-sm mx-auto">When visitors buy things from your online store, their orders will show up here.</p>
+                    </div>`;
+                lucide.createIcons();
+                return;
+            }
+            view.innerHTML = `
+                <div class="bg-darkblue-800 rounded-xl border border-darkblue-700 shadow-sm overflow-hidden">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-darkblue-700 text-gray-300 text-xs uppercase border-b border-darkblue-700">
+                                <th class="px-6 py-3 font-medium">Date</th>
+                                <th class="px-6 py-3 font-medium">Customer</th>
+                                <th class="px-6 py-3 font-medium">Product</th>
+                                <th class="px-6 py-3 font-medium">Qty</th>
+                                <th class="px-6 py-3 font-medium">Total</th>
+                                <th class="px-6 py-3 font-medium">Contact</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-darkblue-700 text-sm">
+                            ${orders.slice().reverse().map(o => `
+                                <tr>
+                                    <td class="px-6 py-4 text-gray-300 whitespace-nowrap">${o.date}</td>
+                                    <td class="px-6 py-4 text-white">
+                                        ${o.name}
+                                        <div class="text-xs text-gray-400 mt-0.5">${o.city || ""} ${o.address ? "— " + o.address : ""}</div>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-300">${o.product}</td>
+                                    <td class="px-6 py-4 text-gray-300">${o.quantity}</td>
+                                    <td class="px-6 py-4 font-medium text-white">Rs. ${(Number(o.price) * Number(o.quantity)).toLocaleString()}</td>
+                                    <td class="px-6 py-4 text-gray-300 whitespace-nowrap">
+                                        ${o.phone || ""}<br><span class="text-xs text-gray-400">${o.whatsapp || ""}</span>
+                                    </td>
+                                </tr>
+                            `).join("")}
+                        </tbody>
+                    </table>
+                </div>`;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('view-' + tabName).classList.remove('hidden');
+
+            document.querySelectorAll('aside nav button, aside .border-t button').forEach(btn => {
+                btn.classList.remove('bg-darkblue-700', 'text-white', 'font-medium');
+                btn.classList.add('text-gray-300');
+            });
+
+            const activeBtn = document.getElementById('nav-' + tabName);
+            activeBtn.classList.add('bg-darkblue-700', 'text-white', 'font-medium');
+            activeBtn.classList.remove('text-gray-300');
+
+            document.getElementById('page-title').innerText = tabName.charAt(0).toUpperCase() + tabName.slice(1);
+
+            if(tabName === 'orders' || tabName === 'products'){
+                loadDashboardData();
+            }
+        }
+
+        function toggleModal(show) {
+            const modal = document.getElementById('product-modal');
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        async function handleProductSubmit(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('prod-title').value.trim();
+            const desc = document.getElementById('prod-desc').value.trim();
+            const price = parseFloat(document.getElementById('prod-price').value);
+            const stock = parseInt(document.getElementById('prod-stock').value);
+            const category = document.getElementById('prod-category').value;
+            const tag = document.getElementById('prod-tag').value;
+            const imagesRaw = document.getElementById('prod-images').value.trim();
+            const images = imagesRaw.split(",").map(s => s.trim()).filter(Boolean);
+            const img = images[0] || "";
+            const group = category.startsWith("watches") ? "watches" : "jewelry";
+            const id = slugify(title) + "-" + Date.now().toString(36);
+
+            const newProduct = { id, name: title, category, group, price, tag, img, gallery: images, desc, stock };
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Saving…";
+
+            if(!apiConfigured()){
+                alert("Set GOOGLE_SCRIPT_URL at the top of the <script> in admin.html first (same URL as in script.js), otherwise products won't be saved to your Google Sheet.");
+            }
+
+            await apiPost({ type: "addProduct", ...newProduct });
+
+            // Optimistically show it right away rather than waiting on
+            // a fresh fetch (Apps Script POST responses can't be read
+            // due to no-cors, so we can't confirm the write instantly).
+            products.push(newProduct);
+            renderProductsTable();
+            updateDashboardMetrics();
+
+            document.getElementById('add-product-form').reset();
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Save Product";
+            toggleModal(false);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+/* ===========================================================
+   AURELIA — Google Sheets Backend (Apps Script)
+   ------------------------------------------------------------
+   WHAT THIS DOES
+   - Turns a Google Sheet into a simple database for your store.
+   - Creates 2 tabs automatically: "Products" and "Orders".
+   - Website reads products from the sheet (GET requests).
+   - Website writes new orders into the sheet (POST requests).
+   - Admin panel writes new products into the sheet (POST) and
+     reads products + orders back out (GET) to display them.
+
+   HOW TO INSTALL
+   1. Go to https://sheets.google.com and create a new blank sheet.
+      Name it anything, e.g. "Aurelia Store DB".
+   2. In that sheet: Extensions → Apps Script.
+   3. Delete anything in the editor (Code.gs) and paste this
+      entire file in its place.
+   4. Click the disk icon (Save).
+   5. Click "Deploy" → "New deployment".
+      - Click the gear icon next to "Select type" → choose "Web app".
+      - Description: anything (e.g. "Aurelia API").
+      - Execute as: "Me".
+      - Who has access: "Anyone".
+      - Click "Deploy".
+   6. Google will ask you to authorize — click through and allow it.
+   7. Copy the URL it gives you. It ends in /exec, e.g.:
+      https://script.google.com/macros/s/AKfycb.../exec
+   8. Paste that URL into:
+      - script.js   → const GOOGLE_SCRIPT_URL = "...";
+      - admin.html  → const GOOGLE_SCRIPT_URL = "...";
+      (Same URL in both files.)
+   9. Reload the sheet once — two tabs "Products" and "Orders"
+      will be created automatically the first time the script runs
+      (or just open admin.html and add a product, which triggers it).
+
+   IMPORTANT: Every time you change the code in this file, you
+   must create a NEW deployment (Deploy → Manage deployments →
+   edit (pencil) → New version → Deploy) for the changes to go
+   live on the same URL.
+   =========================================================== */
+
+const SS = SpreadsheetApp.getActiveSpreadsheet();
+
+const PRODUCT_HEADERS = ["id","name","category","group","price","tag","img","gallery","desc","stock"];
+const ORDER_HEADERS   = ["date","name","phone","whatsapp","city","address","product","price","quantity","status"];
+
+function getProductsSheet_(){
+  let sh = SS.getSheetByName("Products");
+  if(!sh){ sh = SS.insertSheet("Products"); }
+  if(sh.getLastRow() === 0){ sh.appendRow(PRODUCT_HEADERS); }
+  return sh;
+}
+
+function getOrdersSheet_(){
+  let sh = SS.getSheetByName("Orders");
+  if(!sh){ sh = SS.insertSheet("Orders"); }
+  if(sh.getLastRow() === 0){ sh.appendRow(ORDER_HEADERS); }
+  return sh;
+}
+
+/* ---------- ENTRY POINTS ------------------------------------- */
+
+function doGet(e){
+  const action = (e.parameter.action || "").toLowerCase();
+  if(action === "getproducts") return jsonOut_(getProducts_());
+  if(action === "getorders")   return jsonOut_(getOrders_());
+  return jsonOut_({ error: "Unknown or missing action. Use ?action=getProducts or ?action=getOrders" });
+}
+
+function doPost(e){
+  let data;
+  try{
+    data = JSON.parse(e.postData.contents);
+  }catch(err){
+    return jsonOut_({ error: "Invalid JSON body" });
+  }
+
+  const type = (data.type || "").toLowerCase();
+
+  if(type === "addproduct")   return jsonOut_(addProduct_(data));
+  if(type === "deleteproduct")return jsonOut_(deleteProduct_(data.id));
+  if(type === "updatestock")  return jsonOut_(updateStock_(data.id, data.stock));
+  if(type === "order")        return jsonOut_(addOrder_(data));
+
+  // Backwards-compatible: the original script.js sends order rows
+  // without a "type" field, just {date,name,phone,...,product,...}
+  if(data.product) return jsonOut_(addOrder_(data));
+
+  return jsonOut_({ error: "Unknown type: " + type });
+}
+
+function jsonOut_(obj){
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+/* ---------- ORDERS --------------------------------------------- */
+
+function addOrder_(d){
+  const sh = getOrdersSheet_();
+  sh.appendRow([
+    d.date || new Date(),
+    d.name || "",
+    d.phone || "",
+    d.whatsapp || "",
+    d.city || "",
+    d.address || "",
+    d.product || "",
+    d.price || 0,
+    d.quantity || 1,
+    "New"
+  ]);
+  return { status: "ok" };
+}
+
+function getOrders_(){
+  const sh = getOrdersSheet_();
+  const data = sh.getDataRange().getValues();
+  const rows = data.slice(1); // drop header row
+  return rows
+    .filter(r => r[0] !== "" && r[0] !== null)
+    .map(r => ({
+      date: r[0] instanceof Date ? r[0].toString() : r[0],
+      name: r[1],
+      phone: r[2],
+      whatsapp: r[3],
+      city: r[4],
+      address: r[5],
+      product: r[6],
+      price: Number(r[7]) || 0,
+      quantity: Number(r[8]) || 0,
+      status: r[9]
+    }));
+}
+
+/* ---------- PRODUCTS -------------------------------------------- */
+
+function addProduct_(d){
+  const sh = getProductsSheet_();
+  const id = d.id || Utilities.getUuid();
+  const gallery = Array.isArray(d.gallery) ? d.gallery.join(",") : (d.gallery || d.img || "");
+  sh.appendRow([
+    id,
+    d.name || "",
+    d.category || "",
+    d.group || "jewelry",
+    d.price || 0,
+    d.tag || "",
+    d.img || "",
+    gallery,
+    d.desc || "",
+    d.stock || 0
+  ]);
+  return { status: "ok", id: id };
+}
+
+function deleteProduct_(id){
+  const sh = getProductsSheet_();
+  const data = sh.getDataRange().getValues();
+  for(let i = 1; i < data.length; i++){
+    if(data[i][0] === id){
+      sh.deleteRow(i + 1);
+      return { status: "ok" };
+    }
+  }
+  return { status: "not_found" };
+}
+
+function updateStock_(id, stock){
+  const sh = getProductsSheet_();
+  const data = sh.getDataRange().getValues();
+  for(let i = 1; i < data.length; i++){
+    if(data[i][0] === id){
+      sh.getRange(i + 1, 10).setValue(stock); // column 10 = stock
+      return { status: "ok" };
+    }
+  }
+  return { status: "not_found" };
+}
+
+function getProducts_(){
+  const sh = getProductsSheet_();
+  const data = sh.getDataRange().getValues();
+  const rows = data.slice(1); // drop header row
+  return rows
+    .filter(r => r[0] !== "" && r[0] !== null)
+    .map(r => ({
+      id: r[0],
+      name: r[1],
+      category: r[2],
+      group: r[3],
+      price: Number(r[4]) || 0,
+      tag: r[5],
+      img: r[6],
+      gallery: (r[7] || "").toString().split(",").map(s => s.trim()).filter(Boolean),
+      desc: r[8],
+      stock: Number(r[9]) || 0
+    }));
+}
