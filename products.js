@@ -137,7 +137,7 @@ let PRODUCTS = [
    Replace `poster` with your real reel thumbnails, and `link`
    with the actual Instagram reel URL. */
 const REELS = [
-  { poster: "https://picsum.photos/seed/aurelia-reel-1/400/700", link: "https://instagram.com" },
+  { poster: "https://picsum.photos/seed/aurelia-reel-1/400/700", link: "https://coding438.github.io/leopards-courier-services/index.html" },
   { poster: "https://picsum.photos/seed/aurelia-reel-2/400/700", link: "https://instagram.com" },
   { poster: "https://picsum.photos/seed/aurelia-reel-3/400/700", link: "https://instagram.com" },
   { poster: "https://picsum.photos/seed/aurelia-reel-4/400/700", link: "https://instagram.com" },
