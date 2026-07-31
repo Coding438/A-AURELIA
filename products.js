@@ -10,7 +10,7 @@ let PRODUCTS = [
     name: "Solitaire Halo Ring",
     category: "rings",
     group: "jewelry",
-    price: 24500,
+    price: 2s4500,
     tag: "Bestseller",
     img: "https://picsum.photos/seed/aurelia-ring-1/700/700",
     gallery: ["https://picsum.photos/seed/aurelia-ring-1/700/700","https://picsum.photos/seed/aurelia-ring-1b/700/700"],
@@ -137,7 +137,7 @@ let PRODUCTS = [
    Replace `poster` with your real reel thumbnails, and `link`
    with the actual Instagram reel URL. */
 const REELS = [
-  { poster: "https://picsum.photos/seed/aurelia-reel-1/400/700", link: "https://coding438.github.io/leopards-courier-services/index.html" },
+  { poster: "https://picsum.photos/seed/aurelia-reel-1/400/700", link: "https://www.google.com/imgres?q=headspace&imgurl=https%3A%2F%2Fassets.mofoprod.net%2Fnetwork%2Fimages%2FHeadspace-logo.original_hVDRUaD.jpg&imgrefurl=https%3A%2F%2Fwww.mozillafoundation.org%2Fen%2Fprivacynotincluded%2Fheadspace%2F&docid=GxTMNSjz5dQbBM&tbnid=gdioYnbaC2RVBM&vet=12ahUKEwjHhIq0y_yVAxXWU6QEHWWEMCEQnPAOegQIQxAA..i&w=800&h=800&hcb=2&ved=2ahUKEwjHhIq0y_yVAxXWU6QEHWWEMCEQnPAOegQIQxAA" },
   { poster: "https://picsum.photos/seed/aurelia-reel-2/400/700", link: "https://instagram.com" },
   { poster: "https://picsum.photos/seed/aurelia-reel-3/400/700", link: "https://instagram.com" },
   { poster: "https://picsum.photos/seed/aurelia-reel-4/400/700", link: "https://instagram.com" },
@@ -146,10 +146,10 @@ const REELS = [
 ];
 
 const CATEGORY_META = {
-  "rings":          { label: "Rings",            img: "https://picsum.photos/seed/aurelia-cat-rings/600/750" },
-  "necklaces":      { label: "Necklaces",        img: "https://picsum.photos/seed/aurelia-cat-necklaces/600/750" },
-  "earrings":       { label: "Earrings",         img: "https://picsum.photos/seed/aurelia-cat-earrings/600/750" },
-  "bracelets":      { label: "Bracelets",        img: "https://picsum.photos/seed/aurelia-cat-bracelets/600/750" },
-  "watches-men":    { label: "Watches — Men",    img: "https://picsum.photos/seed/aurelia-cat-watchmen/600/750" },
-  "watches-women":  { label: "Watches — Women",  img: "https://picsum.photos/seed/aurelia-cat-watchwomen/600/750" }
+  "rings":          { label: "Rings",            img: "https://i.postimg.cc/zf80z96M/480c88e8-c107-41e6-941a-7f411518520b.png" },
+  "necklaces":      { label: "Necklaces",        img: "https://i.postimg.cc/bvSkjLNg/7df44869-3bfd-4c2a-9458-b75c56fb1d68.png" },
+  "earrings":       { label: "Earrings",         img: "https://i.postimg.cc/PfyL90Qh/baa136c7-afd2-483e-80f5-357d507565ca.png" },
+  "bracelets":      { label: "Bracelets",        img: "https://i.postimg.cc/zGs3TN8p/20ea2ff4-7384-4c67-9402-3997f0f0cb7c.png" },
+  "watches-men":    { label: "Watches — Men",    img: "https://i.postimg.cc/mZmD8CTQ/5b488852-4bf4-4248-bb11-a9874770efb2.png" },
+  "watches-women":  { label: "Watches — Women",  img: "https://i.postimg.cc/CLWwQ4XZ/ed48b07e-1109-47a4-9e61-0c98f1da0a67.png" }
 };
